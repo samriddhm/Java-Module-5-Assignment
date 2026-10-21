@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q38: How do you configure the Java version in a Maven project?
+
+    This pom shows the RECOMMENDED way (option 1) and keeps the other ways
+    as comments so you can compare them.
+
+    Run:  mvn compile exec:java
+    Try:  change 17 to 11 below and run "mvn compile" - the build fails because
+          App.java uses Java 17 features (records, switch expressions, text blocks).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q38-java-version</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <!-- OPTION 1 (recommended, JDK 9+): one property sets source, target AND the API level -->
+        <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- OPTION 2 (older style, also works on JDK 8):
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        -->
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <!-- OPTION 3: configure the plugin directly (overrides the properties):
+                <configuration>
+                    <release>17</release>
+                </configuration>
+                -->
+            </plugin>
+
+            <!-- OPTIONAL: fail fast if the JDK running Maven is too old -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                    <message>This project needs JDK 17 or newer.</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.javaassign5.q38.App</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

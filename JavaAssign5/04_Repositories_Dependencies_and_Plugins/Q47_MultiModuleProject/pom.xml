@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q47: PARENT (aggregator) POM of a multi-module project.
+
+    q47-multi-module/          <- this pom (packaging = pom, contains no code)
+    ├── q47-core/              <- library module (business logic)
+    └── q47-app/               <- application module, depends on q47-core
+
+    Build everything from THIS folder:
+        mvn clean install                      (builds core first, then app - "reactor" order)
+        mvn -pl q47-app -am package            (only app + the modules it needs)
+        mvn -pl q47-app exec:java              (run the app after install)
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q47-multi-module</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>                  <!-- REQUIRED for a parent/aggregator -->
+
+    <!-- 1) list of child modules (folder names) -->
+    <modules>
+        <module>q47-core</module>
+        <module>q47-app</module>
+    </modules>
+
+    <!-- 2) settings inherited by every module -->
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.10.2</junit.version>
+    </properties>
+
+    <!-- 3) versions decided once; modules declare these WITHOUT a <version> -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.javaassign5</groupId>
+                <artifactId>q47-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 4) dependencies EVERY module gets automatically -->
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- 5) plugin versions decided once -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q50: Maven configuration to run unit tests with maven-surefire-plugin (JUnit 5).
+
+    mvn test                              -> runs fast tests, SKIPS tests tagged "slow"
+    mvn test -Pall-tests                  -> profile that runs every test, including "slow"
+    mvn test -Dtest=CalculatorTest        -> run one test class
+    mvn test -Dtest=CalculatorTest#divideByZeroThrows   -> run one test method
+    mvn package -DskipTests               -> build without running tests
+    Reports: target/surefire-reports/*.txt and *.xml
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q50-surefire-unit-tests</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.10.2</junit.version>
+        <surefire.version>3.2.5</surefire.version>
+        <!-- default: exclude slow tests (the profile below clears this) -->
+        <excluded.test.groups>slow</excluded.test.groups>
+    </properties>
+
+    <dependencies>
+        <!-- JUnit 5 (API + engine + params) - test scope -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <!-- which classes count as tests (these are the defaults, written out) -->
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                    </includes>
+                    <!-- integration tests (*IT.java) are for maven-failsafe-plugin, not surefire -->
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+
+                    <!-- JUnit 5 @Tag filtering -->
+                    <excludedGroups>${excluded.test.groups}</excludedGroups>
+
+                    <!-- values the tests can read with System.getProperty(...) -->
+                    <systemPropertyVariables>
+                        <app.environment>test</app.environment>
+                        <discount.rate>0.10</discount.rate>
+                    </systemPropertyVariables>
+
+                    <!-- run each test class in a fresh JVM fork; 1 fork at a time -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <argLine>-Xmx256m -Dfile.encoding=UTF-8</argLine>
+
+                    <!-- JUnit 5 options: run test methods in parallel -->
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.execution.parallel.enabled = true
+                            junit.jupiter.execution.parallel.mode.default = concurrent
+                        </configurationParameters>
+                    </properties>
+
+                    <!-- build fails if a test fails (default false) -->
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <!-- nicer console output -->
+                    <trimStackTrace>true</trimStackTrace>
+                    <reportFormat>plain</reportFormat>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- mvn test -Pall-tests  -> nothing excluded, slow tests run too -->
+        <profile>
+            <id>all-tests</id>
+            <properties>
+                <excluded.test.groups></excluded.test.groups>
+            </properties>
+        </profile>
+    </profiles>
+</project>

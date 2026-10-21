@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Exercise 5 - module 2: business logic. Depends on ex5-model (version managed by the parent). -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.javaassign5</groupId>
+        <artifactId>ex5-library-system</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>ex5-service</artifactId>
+    <name>Exercise 5 - Service</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.javaassign5</groupId>
+            <artifactId>ex5-model</artifactId>
+            <!-- no <version>: comes from the parent's dependencyManagement -->
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q43: How do you exclude a specific transitive dependency?
+
+    Apache HttpClient 4.5.14 normally brings in:
+        httpcore 4.4.16, commons-codec 1.11 and commons-logging 1.2   (transitive)
+    We EXCLUDE commons-logging and replace it with jcl-over-slf4j, a bridge that
+    provides the same commons-logging API but sends logs to SLF4J.
+
+    Compare:
+        mvn dependency:tree       (commons-logging is gone from the tree)
+        mvn compile exec:exec     (prints where the logging classes really came from)
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q43-exclude-transitive</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <slf4j.version>2.0.13</slf4j.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+            <exclusions>
+                <!-- Only groupId + artifactId; NO version is given in an exclusion -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Replacement: same org.apache.commons.logging.* classes, routed to SLF4J -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Other forms you may meet:
+             1) exclude EVERYTHING a dependency brings (Maven 3.2.1+):
+                <exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+             2) mark your own dependency <optional>true</optional> so it is never
+                passed on to projects that depend on YOU.                         -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <!-- exec:exec starts a SEPARATE java process, so Maven's own jars
+                     cannot mix with the project's classpath -->
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>com.javaassign5.q43.ExclusionCheck</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

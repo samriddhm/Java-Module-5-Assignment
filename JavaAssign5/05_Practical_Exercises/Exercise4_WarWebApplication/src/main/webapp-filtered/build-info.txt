@@ -1,0 +1,8 @@
+Student Portal - build information
+(this file is copied into the WAR by maven-war-plugin <webResources> with filtering ON,
+ so the placeholders below are replaced with real values at build time)
+
+Artifact : ${project.groupId}:${project.artifactId}
+Version  : ${project.version}
+Name     : ${project.name}
+Java     : ${maven.compiler.release}

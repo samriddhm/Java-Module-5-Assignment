@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q40: Example pom.xml for a project using Spring Boot.
+
+    Key ideas:
+      1. <parent> spring-boot-starter-parent  -> gives default plugin config and
+         a BOM (bill of materials) with tested versions of hundreds of libraries,
+         so the starters below need NO <version>.
+      2. "Starters" = one dependency that pulls in everything for a feature.
+      3. spring-boot-maven-plugin -> builds an executable "fat" JAR and adds "mvn spring-boot:run".
+
+    Run:    mvn spring-boot:run          then open http://localhost:8080/hello?name=Shrey
+    Build:  mvn clean package  ->  java -jar target/q40-spring-boot-demo-1.0.0.jar
+    Test:   mvn test
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1) Inherit Spring Boot's defaults -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.5</version>
+        <relativePath/> <!-- look up the parent in the repository, not in a parent folder -->
+    </parent>
+
+    <!-- 2) This project's coordinates -->
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q40-spring-boot-demo</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>Q40 Spring Boot Demo</name>
+    <description>Example Spring Boot project for JavaAssign5 Q40</description>
+
+    <!-- 3) Spring Boot 3 needs Java 17+; the parent reads this property -->
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <!-- 4) Starters - versions come from the parent's BOM -->
+    <dependencies>
+        <!-- REST APIs + embedded Tomcat server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Bean Validation (@NotBlank, @Size, @Min ...) - annotation based! -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Health/metrics endpoints, e.g. /actuator/health -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Auto-restart during development; optional = not passed on to other projects -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- JUnit 5, Mockito, AssertJ, MockMvc ... for tests only -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- 5) Build an executable JAR -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

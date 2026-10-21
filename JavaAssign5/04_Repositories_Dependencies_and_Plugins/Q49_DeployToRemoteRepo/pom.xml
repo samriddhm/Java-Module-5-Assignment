@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q49: Deploying a Maven project to a remote repository.
+
+    1) <distributionManagement> says WHERE to upload (release vs snapshot repository).
+    2) ~/.m2/settings.xml holds the USERNAME/PASSWORD for each repository <id>
+       (see settings.xml in this folder - never put passwords in pom.xml).
+    3) Run:   mvn clean deploy
+
+    No server? Try it with a local folder acting as the "remote" repository:
+       mvn clean deploy -DaltDeploymentRepository=local-folder::file:./target/remote-repo
+    then look inside target/remote-repo/com/javaassign5/q49-deploy-demo/1.0.0/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q49-deploy-demo</artifactId>
+    <!-- versions ending in -SNAPSHOT go to snapshotRepository, others to repository -->
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Q49 Deploy Demo</name>
+    <description>A tiny library used to demonstrate mvn deploy</description>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- WHERE to deploy. The <id> values must match <server><id> in settings.xml -->
+    <distributionManagement>
+        <repository>
+            <id>company-releases</id>
+            <name>Company Release Repository</name>
+            <url>https://nexus.example.com/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>company-snapshots</id>
+            <name>Company Snapshot Repository</name>
+            <url>https://nexus.example.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <!-- also publish a -sources.jar so users can read the code in their IDE -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- the plugin that does the upload in the "deploy" phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <retryFailedDeploymentCount>2</retryFailedDeploymentCount>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

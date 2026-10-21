@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Q47: CHILD module 1 - a plain library (jar) with the business logic. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- link to the parent: groupId and version are inherited from it -->
+    <parent>
+        <groupId>com.javaassign5</groupId>
+        <artifactId>q47-multi-module</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>q47-core</artifactId>
+    <packaging>jar</packaging>
+
+    <!-- junit comes from the parent's <dependencies>, so nothing to add here -->
+</project>

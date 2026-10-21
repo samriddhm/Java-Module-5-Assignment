@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Practical Exercise 2: A Maven project that demonstrates transitive dependencies.
+
+    Only TWO dependencies are declared below, but Maven downloads FIVE+ jars:
+
+      commons-text 1.12.0            (declared, compile)
+      └── commons-lang3 3.14.0       (TRANSITIVE - never declared, yet our code uses it!)
+      junit-jupiter 5.10.2           (declared, test)
+      ├── junit-jupiter-api          (transitive)
+      │   ├── opentest4j             (transitive, depth 3)
+      │   ├── junit-platform-commons (transitive, depth 3)
+      │   └── apiguardian-api        (transitive, depth 3)
+      ├── junit-jupiter-params       (transitive)
+      └── junit-jupiter-engine       (transitive)
+          └── junit-platform-engine  (transitive, depth 3)
+
+    Commands:
+      mvn dependency:tree                     -> print the tree above
+      mvn dependency:list                     -> flat list of all resolved jars + scopes
+      mvn dependency:analyze                  -> warns "Used undeclared dependencies: commons-lang3"
+      mvn -q compile exec:exec                -> run the demo (prints the real runtime classpath)
+      mvn -q exec:exec -Pno-lang3             -> (after a normal compile) commons-lang3 EXCLUDED
+                                                 -> NoClassDefFoundError at runtime
+      mvn -q compile -Pno-lang3               -> compile error: package org.apache.commons.lang3 does not exist
+      mvn test                                -> tests run with the transitive JUnit jars
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>ex2-transitive-dependencies</artifactId>
+    <version>1.0.0</version>
+    <name>Exercise 2 - Transitive dependencies</name>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- DECLARED #1: we use org.apache.commons.text.* directly -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
+        <!-- DECLARED #2: test framework -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- NOTE: commons-lang3 is NOT declared. Best practice would be to declare it,
+             because our code imports it directly (mvn dependency:analyze tells you so). -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+            </plugin>
+            <!-- exec:exec runs the app in its own JVM so the printed classpath is ONLY the project's -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>com.javaassign5.ex2.TransitiveDemo</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Experiment: cut the transitive link and watch the program break at runtime -->
+        <profile>
+            <id>no-lang3</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-text</artifactId>
+                    <version>1.12.0</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-lang3</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

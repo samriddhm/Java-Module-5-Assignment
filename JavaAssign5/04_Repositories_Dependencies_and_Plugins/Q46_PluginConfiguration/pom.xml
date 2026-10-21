@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q46: How to include and configure plugins in pom.xml.
+
+    Shows the 4 common patterns:
+      A) <pluginManagement>      - set version/config ONCE (used by children / later declarations)
+      B) plugin + <configuration> - change how a plugin's goals behave (compiler)
+      C) plugin + <executions>    - BIND a goal to a lifecycle phase (antrun, enforcer)
+      D) plugin run on demand     - call a goal from the command line (exec:java)
+
+    Try:
+      mvn validate          -> enforcer + antrun banner run automatically
+      mvn compile           -> compiler runs with -Xlint:all and -parameters
+      mvn compile exec:java -> runs the app
+      mvn help:describe -Dplugin=compiler -Ddetail   (lists every option of a plugin)
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q46-plugin-configuration</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <!-- A) pluginManagement: declares versions/config but does NOT activate the plugin -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- B) configuration: version comes from pluginManagement above -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>      <!-- show every compiler warning -->
+                        <arg>-parameters</arg>     <!-- keep parameter names for reflection -->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- C1) executions: run enforcer:enforce automatically in the "validate" phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>check-build-environment</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.6.3,)</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- C2) executions: print a banner in "validate" and a message after "package" -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>banner</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="=== Building ${project.artifactId} ${project.version} with Java ${java.version} ==="/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>done</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="=== Package ready: ${project.build.finalName}.jar ==="/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- D) on-demand goal: "mvn compile exec:java" -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.javaassign5.q46.PluginDemo</mainClass>
+                    <arguments>
+                        <argument>configured-in-pom</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

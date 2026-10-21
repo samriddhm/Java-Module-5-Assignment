@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Q41: How Maven resolves version conflicts.
+
+    commons-lang3 arrives TWICE:
+        (a) transitively:  commons-text 1.12.0  ->  commons-lang3 3.14.0   (depth 2)
+        (b) directly:      commons-lang3 3.12.0                             (depth 1)
+    Rule "nearest definition wins" -> 3.12.0 is used, 3.14.0 is "omitted for conflict".
+
+    Then <dependencyManagement> overrides everything (strongest rule):
+    uncomment the block below and 3.17.0 is used instead.
+
+    Run:   mvn compile exec:exec           (prints the version that was actually loaded)
+           mvn dependency:tree -Dverbose   (shows "omitted for conflict with ...")
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>q41-conflict-resolution</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- RULE 3 (strongest): dependencyManagement pins a version for direct AND transitive uses.
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.17.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    -->
+
+    <dependencies>
+        <!-- Brings commons-lang3 3.14.0 transitively (depth 2) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
+        <!-- RULE 1: nearest wins - this direct declaration (depth 1) beats the transitive one -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <!-- exec:exec starts a SEPARATE java process, so Maven's own jars
+                     cannot mix with the project's classpath -->
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>com.javaassign5.q41.VersionReport</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

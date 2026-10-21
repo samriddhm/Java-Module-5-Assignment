@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Practical Exercise 4: Configure a Maven project to build a WEB APPLICATION using maven-war-plugin.
+
+    Build the WAR:      mvn clean package      ->  target/student-portal.war
+    Run it quickly:     mvn jetty:run          ->  http://localhost:8080/
+    Deploy to Tomcat:   copy target/student-portal.war into <tomcat 10.1+>/webapps/
+                        then open http://localhost:8080/student-portal/
+    Tests:              mvn test
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.javaassign5</groupId>
+    <artifactId>ex4-war-web-application</artifactId>
+    <version>1.0.0</version>
+    <!-- 1) packaging "war" makes the package phase run war:war instead of jar:jar -->
+    <packaging>war</packaging>
+    <name>Exercise 4 - WAR web application</name>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.10.2</junit.version>
+    </properties>
+
+    <dependencies>
+        <!-- 2) Servlet API: PROVIDED - the server (Tomcat/Jetty) already has it,
+                so it is used for compiling but NOT copied into WEB-INF/lib -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- compile scope -> this jar IS copied into WEB-INF/lib inside the WAR -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 3) name of the war file: target/student-portal.war (and the Tomcat URL path) -->
+        <finalName>student-portal</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
+            <!-- 4) THE WAR PLUGIN -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <!-- where the web content lives (this is the default, written out) -->
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <!-- we DO have a web.xml; set to false if you rely only on @WebServlet -->
+                    <failOnMissingWebXml>true</failOnMissingWebXml>
+                    <!-- copy extra files into the war, with ${...} placeholders replaced -->
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp-filtered</directory>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                    <!-- add build info to META-INF/MANIFEST.MF -->
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                    <!-- leave these files out of the war -->
+                    <packagingExcludes>**/*.psd,**/.DS_Store</packagingExcludes>
+                </configuration>
+            </plugin>
+
+            <!-- 5) OPTIONAL: run the app with "mvn jetty:run" (no server installation needed) -->
+            <plugin>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
+                <version>12.0.12</version>
+                <configuration>
+                    <webApp>
+                        <contextPath>/</contextPath>
+                    </webApp>
+                    <httpConnector>
+                        <port>8080</port>
+                    </httpConnector>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

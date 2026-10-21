@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Exercise 5 - module 1: the data model. Gets commons-lang3 + JUnit from the parent automatically. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.javaassign5</groupId>
+        <artifactId>ex5-library-system</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>ex5-model</artifactId>
+    <name>Exercise 5 - Model</name>
+</project>

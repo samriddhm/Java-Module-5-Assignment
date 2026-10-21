@@ -1,0 +1,24 @@
+/* Student Portal - simple styling */
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f6f7fb;
+    color: #1f2430;
+}
+main {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 24px 28px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+h1 { margin-top: 0; color: #2b4acb; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e6ee; }
+th { background: #eef1fb; }
+input { padding: 8px; border: 1px solid #c9cfdd; border-radius: 6px; }
+button { padding: 8px 14px; border: 0; border-radius: 6px; background: #2b4acb; color: #fff; cursor: pointer; }
+button:hover { background: #1f38a0; }
+.error { color: #b3261e; font-weight: 600; }
+code { background: #eef1fb; padding: 1px 5px; border-radius: 4px; }
